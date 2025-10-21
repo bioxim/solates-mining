@@ -20,6 +20,11 @@ export default function App() {
               <Route path="/" element={<Home />} />
               <Route path="/airdrop" element={<div className="p-6">Airdrop page (coming soon)</div>} />
               <Route path="/leaderboard" element={<div className="p-6">Leaderboard page (coming soon)</div>} />
+              // Private routes
+              <Route path="/dashboard" 
+              element={<div className="p-6 text-[var(--text)]">Hello, welcome to your Solates dashboard 👋</div>} 
+              />
+
             </Routes>
         </main>
 
