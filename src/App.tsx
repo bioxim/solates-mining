@@ -8,6 +8,7 @@ import Layout from "./components/layout/Layout";
 // Pages
 import Home from "./pages/Home";
 import Main from "./pages/Main";
+import Leaderboard from "./pages/Leaderboard";
 
 export default function App() {
   return (
@@ -27,7 +28,7 @@ export default function App() {
               <Route path="/mining-room" element={<div className="p-6">Mining Room (coming soon)</div>} />
               <Route path="/quests" element={<div className="p-6">Quests (coming soon)</div>} />
               <Route path="/staking" element={<div className="p-6">Staking (coming soon)</div>} />
-              <Route path="/leaderboard" element={<div className="p-6">Leaderboard (coming soon)</div>} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
             </Route>
 
             {/* fallback opcional */}
