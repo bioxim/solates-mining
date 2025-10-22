@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { loginWithGoogle, logout, db } from "../firebase";
+import { loginWithGoogle, logout, db } from "../../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";

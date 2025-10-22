@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Sun, Moon } from "lucide-react";
-import logo from "../assets/logo-tr.png";
+import logo from "../../assets/logo-tr.png";
 import LoginButton from "./LoginButton";
 
 export default function Navbar() {
@@ -25,7 +25,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="fixed top-0 left-0 w-full bg-[var(--card)] text-[var(--text-primary) shadow-md z-50">
+    <header className="fixed top-0 left-0 w-full bg-[var(--primary-dark)] text-[var(--bg) shadow-md z-50">
       <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-3">
         {/* Logo + nombre (enlazado al sitio principal) */}
         <a

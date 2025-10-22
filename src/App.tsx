@@ -1,34 +1,39 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Components
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
+import Layout from "./components/layout/Layout";
 
 // Pages
 import Home from "./pages/Home";
+import Main from "./pages/Main";
 
 export default function App() {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen bg-[var(--bg)] text-[var(--text)]">
-        {/* Navbar ocupa todo el ancho */}
+      <div className="flex flex-col min-h-screen">
         <Navbar />
 
-        {/* Main content: fondo ocupa todo, contenido centrado */}
-        <main className="flex-grow">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/airdrop" element={<div className="p-6">Airdrop page (coming soon)</div>} />
-              <Route path="/leaderboard" element={<div className="p-6">Leaderboard page (coming soon)</div>} />
-              // Private routes
-              <Route path="/dashboard" 
-              element={<div className="p-6 text-[var(--text)]">Hello, welcome to your Solates dashboard 👋</div>} 
-              />
+        {/* main area */}
+        <main className="flex-1">
+          <Routes>
+            {/* Public / landing home — sin sidebar */}
+            <Route path="/" element={<Home />} />
 
-            </Routes>
+            {/* Rutas "internas" que usan Layout (sidebar fijo + contenido a la derecha) */}
+            <Route element={<Layout />}>
+              <Route path="/dashboard" element={<Main />} />
+              <Route path="/mining-room" element={<div className="p-6">Mining Room (coming soon)</div>} />
+              <Route path="/quests" element={<div className="p-6">Quests (coming soon)</div>} />
+              <Route path="/staking" element={<div className="p-6">Staking (coming soon)</div>} />
+              <Route path="/leaderboard" element={<div className="p-6">Leaderboard (coming soon)</div>} />
+            </Route>
+
+            {/* fallback opcional */}
+          </Routes>
         </main>
 
-        {/* Footer ocupa todo el ancho */}
         <Footer />
       </div>
     </Router>
