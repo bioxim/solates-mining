@@ -1,6 +1,12 @@
 // src/firebase.ts
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
+  signOut,
+} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 // Configuración de Firebase
@@ -16,19 +22,22 @@ const firebaseConfig = {
 
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
-
 export const auth = getAuth(app);
 export const provider = new GoogleAuthProvider();
 export const db = getFirestore(app);
 
-// Función de login
+// ✅ Login con redirect (mejor para Vercel)
 export async function loginWithGoogle() {
-  const result = await signInWithPopup(auth, provider);
-  const user = result.user;
-  return user;
+  await signInWithRedirect(auth, provider);
 }
 
-// Función de logout
+// ✅ Recuperar usuario después del redirect
+export async function getUserAfterRedirect() {
+  const result = await getRedirectResult(auth);
+  return result ? result.user : null;
+}
+
+// ✅ Logout
 export async function logout() {
   await signOut(auth);
 }
