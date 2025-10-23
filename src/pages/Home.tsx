@@ -50,7 +50,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-120px)] p-6 bg-[var(--bg)] text-[var(--text)]">
+    <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-[var(--bg)] text-[var(--text)]">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}

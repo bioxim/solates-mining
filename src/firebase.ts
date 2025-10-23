@@ -1,12 +1,6 @@
 // src/firebase.ts
 import { initializeApp } from "firebase/app";
-import {
-  getAuth,
-  GoogleAuthProvider,
-  signInWithRedirect,
-  getRedirectResult,
-  signOut,
-} from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 // Configuración de Firebase
@@ -16,28 +10,25 @@ const firebaseConfig = {
   projectId: "solates",
   storageBucket: "solates.firebasestorage.app",
   messagingSenderId: "1013713107813",
-  appId: "1:1013713107813:web:ff82f0d20d5ef762b13f8c",
-  measurementId: "G-8CB8BRV814"
+  appId: "1:1013713107813:web:0e89c9fac0f50396b13f8c",
+  measurementId: "G-7DS4SMR49Z",
 };
 
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
+
 export const auth = getAuth(app);
 export const provider = new GoogleAuthProvider();
 export const db = getFirestore(app);
 
-// ✅ Login con redirect (mejor para Vercel)
+// Función de login
 export async function loginWithGoogle() {
-  await signInWithRedirect(auth, provider);
+  const result = await signInWithPopup(auth, provider);
+  const user = result.user;
+  return user;
 }
 
-// ✅ Recuperar usuario después del redirect
-export async function getUserAfterRedirect() {
-  const result = await getRedirectResult(auth);
-  return result ? result.user : null;
-}
-
-// ✅ Logout
+// Función de logout
 export async function logout() {
   await signOut(auth);
 }

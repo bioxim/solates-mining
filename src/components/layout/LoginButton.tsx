@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { loginWithGoogle, logout, db, getUserAfterRedirect } from "../../firebase";
+import { loginWithGoogle, logout, db } from "../../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -10,51 +10,26 @@ export default function LoginButton() {
   const [user, setUser] = useState<any>(null);
   const [xp, setXp] = useState<number | null>(null);
 
-  // ✅ Recupera usuario tras login con redirect o localStorage
+  // Load user from localStorage on mount
   useEffect(() => {
-    const initUser = async () => {
-      try {
-        // 🔹 Si viene de redirect (Vercel)
-        const redirectUser = await getUserAfterRedirect();
-        if (redirectUser) {
-          const userData = {
-            name: redirectUser.displayName,
-            email: redirectUser.email,
-            uid: redirectUser.uid,
-          };
-          setUser(userData);
-          localStorage.setItem("solates_user", JSON.stringify(userData));
-          await fetchXp(userData.uid);
-          toast.success(`Welcome ${redirectUser.displayName}`);
-          return;
-        }
-
-        // 🔹 Si ya estaba logueado localmente
-        const saved = localStorage.getItem("solates_user");
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          setUser(parsed);
-          await fetchXp(parsed.uid);
-        }
-      } catch (err) {
-        console.error("Login redirect recovery failed:", err);
-      }
-    };
-    initUser();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    const saved = localStorage.getItem("solates_user");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setUser(parsed);
+      fetchXp(parsed.uid);
+    }
   }, []);
 
-  // 🔹 Fetch XP y redirige si ya puede entrar
   async function fetchXp(uid: string) {
     try {
       const ref = doc(db, "users", uid);
       const snap = await getDoc(ref);
       if (snap.exists()) {
         const data = snap.data();
-        const currentXp = data.xp ?? 0;
-        setXp(currentXp);
+        setXp(data.xp ?? 0);
 
-        if (currentXp >= 500) {
+        // 🔹 Redirect if user already has enough XP
+        if (data.xp >= 500) {
           navigate("/dashboard");
         }
       } else {
@@ -66,25 +41,46 @@ export default function LoginButton() {
     }
   }
 
-  // ✅ Login (usa redirect, funciona en Vercel)
   async function handleLogin() {
     try {
-      await loginWithGoogle();
-      toast("Redirecting to Google Login...");
+      const u = await loginWithGoogle();
+      const userData = {
+        name: u.displayName,
+        email: u.email,
+        uid: u.uid,
+      };
+      setUser(userData);
+      localStorage.setItem("solates_user", JSON.stringify(userData));
+
+      // Obtener XP directamente desde Firestore
+      const ref = doc(db, "users", u.uid);
+      const snap = await getDoc(ref);
+      let userXp = 0;
+      if (snap.exists()) {
+        userXp = snap.data().xp ?? 0;
+      }
+      setXp(userXp);
+
+      toast.success(`Welcome ${u.displayName}`);
+
+      // 🔹 Redirigir si tiene suficiente XP
+      if (userXp >= 500) {
+        navigate("/dashboard");
+      }
     } catch (err) {
       console.error(err);
       toast.error("Login failed");
     }
   }
 
-  // 🔹 Logout
+
   async function handleLogout() {
     await logout();
     setUser(null);
     setXp(null);
     localStorage.removeItem("solates_user");
     toast("Session closed");
-    navigate("/");
+    navigate("/"); // redirect to Home
   }
 
   const canAccessMining = xp !== null && xp >= 500;
@@ -104,9 +100,7 @@ export default function LoginButton() {
 
           {!canAccessMining && (
             <button
-              onClick={() =>
-                toast("You need at least 500 XP to access the Mining Room 💎")
-              }
+              onClick={() => toast("You need at least 500 XP to access the Mining Room 💎")}
               className="px-3 py-1 rounded-lg bg-[var(--primary-dark)] hover:bg-[var(--primary)] text-white text-sm transition"
             >
               Mining Locked
