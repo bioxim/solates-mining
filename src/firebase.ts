@@ -16,8 +16,8 @@ const firebaseConfig = {
   projectId: "solates",
   storageBucket: "solates.firebasestorage.app",
   messagingSenderId: "1013713107813",
-  appId: "1:1013713107813:web:0e89c9fac0f50396b13f8c",
-  measurementId: "G-7DS4SMR49Z",
+  appId: "1:1013713107813:web:ff82f0d20d5ef762b13f8c",
+  measurementId: "G-8CB8BRV814"
 };
 
 // Inicializar Firebase
