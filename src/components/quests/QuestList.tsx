@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../firebase";
 import { motion } from "framer-motion";
+import { CheckCircle } from "lucide-react";
 import QuestCard from "./QuestCard";
 
 interface Quest {
@@ -49,24 +50,53 @@ export default function QuestList({ userId }: QuestListProps) {
       animate={{ opacity: 1 }}
       className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
     >
-      {quests.map((quest) => (
-        <div
-          key={quest.id}
-          onClick={() => setSelectedQuest(quest)}
-          className="cursor-pointer p-4 bg-[var(--card)]/40 border border-[var(--primary)]/30 rounded-xl hover:bg-[var(--card)]/70 transition"
-        >
-          <h3 className="text-lg font-semibold text-[var(--primary)] mb-1">
-            {quest.title}
-          </h3>
-          <p className="text-sm opacity-80 mb-2">{quest.description}</p>
-          <span className="text-xs opacity-70">
-            Reward: {quest.reward} XP
-          </span>
-        </div>
-      ))}
+      {quests.map((quest) => {
+        const isCompleted = quest.completedBy?.includes(userId);
+        return (
+          <motion.div
+            key={quest.id}
+            onClick={() => setSelectedQuest(quest)}
+            whileHover={{ scale: isCompleted ? 1 : 1.03 }}
+            className={`relative cursor-pointer p-4 rounded-xl border transition duration-200 backdrop-blur-sm ${
+              isCompleted
+                ? "border-green-500/60 bg-green-500/10 text-green-200"
+                : "border-[var(--primary)]/30 bg-[var(--card)]/40 hover:bg-[var(--card)]/70"
+            }`}
+          >
+            {isCompleted && (
+              <div className="absolute top-3 right-3 text-green-400 animate-pulse">
+                <CheckCircle size={22} />
+              </div>
+            )}
+            <h3
+              className={`text-lg font-semibold mb-1 ${
+                isCompleted ? "text-green-300" : "text-[var(--primary)]"
+              }`}
+            >
+              {quest.title}
+            </h3>
+            <p
+              className={`text-sm mb-2 ${
+                isCompleted ? "opacity-60" : "opacity-80"
+              }`}
+            >
+              {quest.description}
+            </p>
+            <span
+              className={`text-xs ${
+                isCompleted ? "opacity-60" : "opacity-70"
+              }`}
+            >
+              Reward: {quest.reward} XP
+            </span>
+          </motion.div>
+        );
+      })}
 
       {quests.length === 0 && (
-        <p className="col-span-full text-center opacity-60">No bonus quests found.</p>
+        <p className="col-span-full text-center opacity-60">
+          No bonus quests found.
+        </p>
       )}
     </motion.div>
   );
