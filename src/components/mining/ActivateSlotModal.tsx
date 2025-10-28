@@ -17,11 +17,11 @@ export default function ActivateSlotModal({ onClose }: ActivateSlotModalProps) {
         className="bg-[var(--card)] p-8 rounded-2xl border border-[var(--primary)] shadow-lg text-center max-w-sm w-full"
       >
         <h2 className="text-xl font-bold mb-3 text-[var(--primary)]">
-          Activate Mining Slot
+          Activate Mining Spot
         </h2>
         <p className="text-sm opacity-80 mb-6">
-          Activating this slot costs <strong>1 USDC</strong>.  
-          It will start generating <strong>0.0000001 $OLA</strong> per day.
+          Activating this spot costs <strong>1 USDC</strong>.  
+          It will start generating <strong>0.00001 $OLA</strong> per day.
         </p>
         <div className="flex justify-center gap-3">
           <button

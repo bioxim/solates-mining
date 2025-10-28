@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 export default function MiningStats() {
   const stats = [
-    { label: "Mined Today", value: "0.0000005 $OLA" },
+    { label: "Mined Today", value: "0.00005 $OLA" },
     { label: "Total Mined", value: "1.204 $OLA" },
     { label: "Avg. Power", value: "x3.4" },
   ];

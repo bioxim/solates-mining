@@ -8,9 +8,9 @@ export default function MiningRoom() {
   const [modalOpen, setModalOpen] = useState(false);
 
   const slots = [
-    { id: 1, active: true, power: "x1", mined: 0.0000001 },
-    { id: 2, active: true, power: "x2", mined: 0.0000002 },
-    { id: 3, active: true, power: "x5", mined: 0.0000005 },
+    { id: 1, active: true, power: "x1", mined: 0.00001 },
+    { id: 2, active: true, power: "x2", mined: 0.00002 },
+    { id: 3, active: true, power: "x5", mined: 0.00005 },
     { id: 4, active: false, power: null, mined: 0 },
     { id: 5, active: false, power: null, mined: 0 },
   ];

@@ -39,7 +39,7 @@ export default function SlotCard({ slot, onActivate }: SlotCardProps) {
         />
       )}
 
-      <div className="absolute top-3 right-4 text-xs opacity-60">Slot #{slot.id}</div>
+      <div className="absolute top-3 right-4 text-xs opacity-60">Spot #{slot.id}</div>
 
       <div className="relative z-10 flex flex-col items-center justify-center">
         {slot.active ? (
@@ -56,7 +56,7 @@ export default function SlotCard({ slot, onActivate }: SlotCardProps) {
         ) : (
           <>
             <div className="text-3xl mb-2 opacity-70">🔒</div>
-            <p className="text-sm opacity-70 mb-4">Inactive Slot</p>
+            <p className="text-sm opacity-70 mb-4">Inactive Spot</p>
             <button
               onClick={onActivate}
               className="px-4 py-2 rounded-lg bg-[var(--primary)] text-white text-sm font-semibold hover:opacity-90 transition"
