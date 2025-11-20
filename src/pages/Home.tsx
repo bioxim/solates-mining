@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { useLocation } from "react-router-dom";
+
 
 interface Step {
   icon: string;
@@ -15,6 +17,8 @@ export default function Home() {
   const [user, setUser] = useState<any>(null);
   const [xp, setXp] = useState<number>(0);
   const navigate = useNavigate();
+  const location = useLocation();
+
 
   useEffect(() => {
     const saved = localStorage.getItem("solates_user");
@@ -33,12 +37,16 @@ export default function Home() {
     }
   }
 
-  // Auto-redirect if user has 500 XP or more
+  // Auto-redirect ONLY if you are currently on "/"
   useEffect(() => {
-    if (user && xp >= 500) {
+    const isOnHome = location.pathname === "/";
+
+    if (isOnHome && user && xp >= 500) {
       navigate("/dashboard");
     }
-  }, [user, xp, navigate]);
+  }, [user, xp, location.pathname, navigate]);
+
+  if (location.pathname !== "/") return null;
 
   const steps: Step[] = [
     { icon: "🎯", title: "Quests", desc: "Complete missions and earn real XP." },

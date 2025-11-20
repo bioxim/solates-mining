@@ -6,7 +6,7 @@ import TransactionHistory from "../components/dashboard/TransactionHistory";
 import TopStatsBar from "../components/dashboard/TopStatsBar";
 import TreasuryChart from "../components/dashboard/TreasuryChart";
 
-export default function Main() {
+export default function General() {
   return (
     <div className="min-h-screen w-full p-8 text-[var(--text)] bg-[var(--bg)] overflow-y-auto">
       <motion.h1

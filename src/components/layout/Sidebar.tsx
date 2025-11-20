@@ -6,7 +6,7 @@ export default function Sidebar() {
   const location = useLocation();
 
   const links = [
-    { name: "General", icon: <Home size={20} />, href: "/" },
+    { name: "General", icon: <Home size={20} />, href: "/dashboard" },
     { name: "Mining Room", icon: <Cpu size={20} />, href: "/mining-room" },
     { name: "Quests", icon: <Target size={20} />, href: "/quests" },
     { name: "Staking", icon: <DollarSign size={20} />, href: "/staking" },
