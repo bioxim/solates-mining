@@ -17,13 +17,15 @@ import {
 
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { useWallet } from "../../wallet/useWallet"; // <-- IMPORTANTE
 
 export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [walletConnected, setWalletConnected] = useState(false);
-  const [showUtilities, setShowUtilities] = useState(true); // CATEGORÍA COLAPSABLE
+  const { connected, address, connect, disconnect, error } = useWallet(); // <-- ESTADO REAL
+
+  const [showUtilities, setShowUtilities] = useState(true);
 
   const mainLinks = [
     { name: "General", href: "/dashboard", icon: <Home size={18} />, soon: false },
@@ -44,10 +46,6 @@ export default function Sidebar() {
     { name: "Leaderboard", href: "/leaderboard", icon: <Trophy size={18} />, soon: false },
   ];
 
-  const handleWallet = () => {
-    setWalletConnected(!walletConnected);
-  };
-
   const linkBaseStyle =
     "flex items-center gap-3 w-full px-4 py-3 text-sm font-medium rounded-lg transition";
 
@@ -58,7 +56,7 @@ export default function Sidebar() {
       return (
         <div
           key={link.name}
-          className="flex items-center gap-3 w-full px-4 py-3 text-sm rounded-lg bg-[#1f1f2e] 
+          className="flex items-center gap-3 w-full px-4 py-3 text-sm rounded-lg bg-[#1f1f2e]
                      text-gray-600 opacity-60 cursor-not-allowed border border-[#2a2a3a]"
         >
           {link.icon}
@@ -74,9 +72,7 @@ export default function Sidebar() {
       <button
         key={link.name}
         onClick={() => navigate(link.href)}
-        className={`${linkBaseStyle} ${
-          active ? "bg-[#3b3b5a]" : "hover:bg-[#2a2a3a]"
-        }`}
+        className={`${linkBaseStyle} ${active ? "bg-[#3b3b5a]" : "hover:bg-[#2a2a3a]"}`}
       >
         {link.icon}
         <span>{link.name}</span>
@@ -98,7 +94,7 @@ export default function Sidebar() {
           {mainLinks.map(renderLink)}
         </div>
 
-        {/* UTILITIES (COLAPSABLE) */}
+        {/* UTILITIES */}
         <div className="mt-2">
           <div
             className="flex items-center justify-between px-4 cursor-pointer text-xs text-gray-400 uppercase tracking-wider"
@@ -119,27 +115,44 @@ export default function Sidebar() {
           </div>
         </div>
 
-        {/* MARKET */}
+        {/* MARKET + QUESTS + LEADERBOARD */}
         <div className="mt-2">
-          {extraLinks.slice(0, 1).map(renderLink)}
-        </div>
-
-        {/* QUESTS */}
-        <div className="mt-2">
-          {extraLinks.slice(1).map(renderLink)}
+          {extraLinks.map(renderLink)}
         </div>
       </nav>
 
       {/* WALLET BUTTON */}
       <div className="mt-auto p-4 border-t border-[#2a2a3a]">
         <button
-          onClick={handleWallet}
+          onClick={connected ? disconnect : connect}
           className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-bold 
-                     ${walletConnected ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}`}
+                     ${connected ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}`}
         >
           <Wallet size={18} />
-          {walletConnected ? "Disconnect Wallet" : "Connect Wallet"}
+          {connected ? "Disconnect Wallet" : "Connect Wallet"}
         </button>
+
+        {/* Mostrar la wallet conectada */}
+        {connected && (
+          <p className="text-gray-400 text-xs mt-2 break-all text-center">
+            {address}
+          </p>
+        )}
+
+        {/* Mostrar mensaje de error */}
+        {error && (
+          <div className="relative flex justify-center mt-2 group">
+            <span className="text-red-500 text-xs cursor-pointer">⚠ Wallet Mismatch Error</span>
+
+            <div
+              className="absolute bottom-6 bg-[#2a2a3a] text-gray-200 text-xs p-2 rounded-lg shadow-lg 
+                        opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none 
+                        whitespace-normal break-all max-w-[200px]"
+            >
+              {error}
+            </div>
+          </div>
+        )}
       </div>
     </aside>
   );
