@@ -2,7 +2,8 @@ import { Github, X, Gamepad2, FileText } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-[var(--card)] text-[var(--text-secondary)] border-t border-[var(--card)] fixed bottom-0 left-0 z-50">
+    <footer className="w-full bg-[var(--card)] text-[var(--text-secondary)] border-t border-[var(--card)]">
+
       <style>{`
         .neon-icon {
           transition: all 0.3s ease;
