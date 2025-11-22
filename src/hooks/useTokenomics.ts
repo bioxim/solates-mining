@@ -5,15 +5,21 @@ import { doc, onSnapshot } from "firebase/firestore";
 
 export function useTokenomics() {
   const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const ref = doc(db, "tokenomics/live/current");
+    // 📌 ESTA ES LA RUTA ACTUAL QUE USÁS EN simulateTokenomics()
+    const ref = doc(db, "tokenomics", "live");
+
     const unsub = onSnapshot(ref, (snap) => {
-      setData(snap.data());
+      if (snap.exists()) {
+        setData(snap.data());
+      }
+      setLoading(false);
     });
 
     return () => unsub();
   }, []);
 
-  return data;
+  return { data, loading };
 }

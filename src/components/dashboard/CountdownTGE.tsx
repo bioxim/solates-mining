@@ -3,8 +3,8 @@ import { motion } from "framer-motion";
 import { Rocket } from "lucide-react";
 
 export default function CountdownTGE() {
-  // Fecha objetivo (ejemplo: 15 de noviembre de 2025)
-  const targetDate = new Date("2026-11-28T00:00:00").getTime();
+  // Fecha objetivo (ejemplo: 15 de noviembre de 2026)
+  const targetDate = new Date("2026-11-15T00:00:00").getTime();
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, mins: 0, secs: 0 });
 
   useEffect(() => {
