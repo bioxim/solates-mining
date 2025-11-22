@@ -1,39 +1,63 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { db } from "../../firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { Wallet } from "lucide-react"; // ícono minimalista
+import { Wallet } from "lucide-react";
 
 export default function WelcomeCard() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [user, setUser] = useState<any>(null);
-  const [xp, setXp] = useState<number>(0);
+  const [userData, setUserData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // 1. leer usuario logueado guardado por tu login
     const saved = localStorage.getItem("solates_user");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      setUser(parsed);
-      fetchXp(parsed.uid);
-    }
+    if (!saved) return;
+
+    const parsed = JSON.parse(saved);
+    fetchUserFromFirebase(parsed.uid);
   }, []);
 
-  async function fetchXp(uid: string) {
-    const ref = doc(db, "users", uid);
-    const snap = await getDoc(ref);
-    if (snap.exists()) {
-      setXp(snap.data().xp ?? 0);
+  async function fetchUserFromFirebase(uid: string) {
+    try {
+      const ref = doc(db, "users", uid);
+      const snap = await getDoc(ref);
+
+      if (snap.exists()) {
+        setUserData(snap.data());
+      }
+    } finally {
+      setLoading(false);
     }
   }
 
-  const level = Math.floor(xp / 500) + 1;
-  const progress = Math.min((xp % 500) / 5, 100);
+  if (loading) {
+    return (
+      <div className="w-full p-8 rounded-3xl bg-[var(--card)]/40 animate-pulse">
+        Loading profile...
+      </div>
+    );
+  }
 
-  // Simulación de wallet (por ahora)
-  const walletAddress =
-    user?.wallet || "7syT9aP7KJXGv2RkU1XbxN4dV1q3WgNqP7YHQf45sdfg";
+  if (!userData) {
+    return (
+      <div className="w-full p-8 rounded-3xl bg-[var(--card)]/40 text-red-400">
+        No user profile found.
+      </div>
+    );
+  }
 
-  const shortenAddress = (addr: string) =>
+  // datos reales de Firebase
+  const { displayName, avatarUrl, xp, wallet } = userData;
+
+  // Cálculo real del nivel
+  const level = Math.floor((xp ?? 0) / 500) + 1;
+
+  // Porcentaje real de progreso hacia el próximo nivel
+  const progress = Math.min(((xp ?? 0) % 500) / 5, 100);
+
+  // Shorten wallet
+  const shorten = (addr: string) =>
     addr ? `${addr.slice(0, 5)}...${addr.slice(-4)}` : "No wallet linked";
 
   return (
@@ -43,28 +67,28 @@ export default function WelcomeCard() {
       transition={{ duration: 0.5 }}
       className="relative flex items-center gap-10 w-full rounded-3xl border border-[var(--card)] bg-[var(--card)]/40 backdrop-blur-lg shadow-lg p-8 overflow-hidden hover:bg-[var(--card)]/60 transition"
     >
-      {/* Glow background */}
+      {/* Glow */}
       <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/10 via-transparent to-[var(--primary-dark)]/10 blur-3xl pointer-events-none" />
 
       {/* Avatar */}
       <div className="flex-shrink-0 relative z-10">
         <img
-          src={user?.photoURL || "https://api.dicebear.com/7.x/thumbs/svg?seed=solates"}
+          src={avatarUrl || "https://api.dicebear.com/7.x/thumbs/svg?seed=solates"}
           alt="User Avatar"
-          className="w-28 h-28 rounded-full border-4 border-[var(--primary)] shadow-md"
+          className="w-28 h-28 rounded-full border-4 border-[var(--primary)] shadow-md object-cover"
         />
       </div>
 
-      {/* Info principal */}
+      {/* Info */}
       <div className="flex flex-col flex-grow relative z-10">
         <h2 className="text-3xl font-bold text-[var(--primary)] mb-1">
-          {user?.name || "Guest User"}
+          {displayName || "Guest User"}
         </h2>
 
         {/* Wallet */}
         <div className="flex items-center gap-2 text-sm text-[var(--text)] opacity-80 mb-4">
           <Wallet size={16} className="text-[var(--primary)]" />
-          <span>{shortenAddress(walletAddress)}</span>
+          <span>{shorten(wallet)}</span>
         </div>
 
         {/* Barra XP */}
@@ -76,7 +100,7 @@ export default function WelcomeCard() {
         </div>
 
         <div className="flex justify-between text-sm opacity-80">
-          <span>XP: {xp}</span>
+          <span>XP: {xp ?? 0}</span>
           <span>Level {level}</span>
         </div>
       </div>
