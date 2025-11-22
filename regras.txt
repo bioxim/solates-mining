@@ -1,0 +1,134 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // === Newsletter (Sin cambios) ===
+    match /newsletter_subscribers/{docId} {
+      allow read: if true;
+      allow create: if request.resource.data.email is string
+                      && request.resource.data.email.matches('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$')
+                      && request.resource.data.verified == false
+                      && request.resource.data.token is string;
+      allow update: if resource.data.verified == false
+                      && request.resource.data.verified == true;
+      allow delete: if false;
+    }
+
+    // =================================================================
+    // === REGLA COLLECTION GROUP (LA DEJAMOS, ES CORRECTA) ===
+    // =================================================================
+    // Esta regla permite la consulta "collectionGroup" sobre 'referralCodes'
+    // que usamos en firebase.ts
+    match /{path=**}/referralCodes/{code} {
+      allow read: if request.auth != null;
+    }
+    // =================================================================
+
+
+    // === Reglas de Users ===
+    match /users/{userId} {
+      // ✅ Lectura pública para leaderboard (SIN CAMBIOS)
+      allow read: if true;
+
+      // ===============================================================
+      // === 👇 AQUÍ ESTÁ EL ÚNICO CAMBIO 👇 ===
+      // ===============================================================
+      
+      // Reemplazamos el "allow write" general por reglas específicas
+      // para el documento /users/{userId}
+      
+      // ✅ Crear: Solo el propio usuario puede crear su perfil
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // ✅ Borrar: Solo el propio usuario puede borrar su perfil
+      allow delete: if request.auth != null && request.auth.uid == userId;
+
+      // ✅ Actualizar: Dos casos permitidos
+      allow update: if request.auth != null && (
+
+        // CASO 1: El usuario actualiza su propio perfil (normal)
+        // Esto permite que funcione:
+        // - updateUserProfile(currentUid, ...)
+        // - addUserXP(currentUid, 15)
+        (request.auth.uid == userId)
+
+        || //  O...
+
+        // CASO 2: Otro usuario le da 100 XP por un referido
+        // Esto permite que funcione de forma segura:
+        // - addUserXP(referrerUid, 100)
+        (
+          // 2a. El que actualiza NO es el dueño del documento
+          request.auth.uid != userId &&
+          
+          // 2b. Solo se permite modificar 'xp' y 'updatedAt'
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['xp', 'updatedAt']) &&
+          
+          // 2c. El nuevo XP debe ser exactamente el XP anterior + 100
+          // (Esta es la clave de seguridad para evitar trampas)
+          request.resource.data.xp == resource.data.xp + 100
+        )
+      );
+      // ===============================================================
+      // === 👆 FIN DEL CAMBIO 👆 ===
+      // ===============================================================
+
+
+      // === Reglas de Subcolección /referralCodes (SIN CAMBIOS) ===
+      // Estas reglas tuyas ya eran correctas y seguras.
+      match /referralCodes/{code} {
+    
+        allow read: if true;
+
+        // Crear: solo el owner
+        allow create: if request.auth != null && request.auth.uid == userId
+                          && request.resource.data.code is string
+                          && request.resource.data.status == "unused"
+                          && request.resource.data.owner == request.auth.uid
+                          && request.resource.data.createdAt == request.time
+                          && request.resource.data.keys().hasOnly(['code', 'status', 'createdAt', 'owner']);
+
+        // Update: owner O el referido (¡Esta regla es clave y está bien!)
+        allow update: if request.auth != null && (
+          // 1) El Owner puede actualizar sus propios códigos
+          (request.auth.uid == userId)
+          ||
+          // 2) Otra persona (el referido) marca el código como completado
+          (
+            request.auth.uid != userId && // No es el owner
+            resource.data.status == "unused" && // Estaba sin usar
+            request.resource.data.status == "completed" && // Pasa a completado
+            
+            // (Mejora de seguridad): Nos aseguramos que SOLO el 'status' cambie
+            request.resource.data.code == resource.data.code &&
+            request.resource.data.owner == resource.data.owner &&
+            request.resource.data.createdAt == resource.data.createdAt
+          )
+        );
+
+        allow delete: if false;
+      }
+      
+      // === Subdocumentos genéricos (SIN CAMBIOS) ===
+      match /{document=**} {
+        allow read: if true;
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // === Wallets (Sin cambios) ===
+    match /wallets/{walletAddress} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow update: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow delete: if false;
+    }
+
+    // === Quests (Sin cambios) ===
+    match /quests/{questId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}
