@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import WelcomeCard from "../components/dashboard/WelcomeCard";
 import TokenStats from "../components/dashboard/TokenStats";
 import CountdownTGE from "../components/dashboard/CountdownTGE";
-import TransactionHistory from "../components/dashboard/TransactionHistory";
+import TransactionRecents from "../components/dashboard/TransactionRecents";
 import TopStatsBar from "../components/dashboard/TopStatsBar";
 import TreasuryChart from "../components/dashboard/TreasuryChart";
 
@@ -32,7 +32,7 @@ export default function General() {
       </div>
 
       <div className="mb-8">
-        <TransactionHistory />
+        <TransactionRecents />
       </div>
 
       <div className="mb-8">

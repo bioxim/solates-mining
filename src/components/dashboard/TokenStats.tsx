@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Pickaxe, Zap, Coins } from "lucide-react";
 import { useTokenomics } from "../../hooks/useTokenomics";
 
-// Animación de números
 function useCountUp(target: number, duration = 1500) {
   const [count, setCount] = useState(0);
 
@@ -32,10 +31,13 @@ function useCountUp(target: number, duration = 1500) {
 export default function TokenStats() {
   const { data, loading } = useTokenomics();
 
-  // Mientras carga, mostrar números 0 animándose
-  const mined = useCountUp(data?.minted ?? 0);
-  const miningSpeed = useCountUp((data?.minted ?? 0) / 30); // simulación: minted/30 días
-  const staked = useCountUp(data?.stakingLocked ?? 0);
+  const minedReal = data?.minted ?? 0;
+  const stakedReal = data?.stakingLocked ?? 0;
+  const miningSpeedReal = minedReal / 30;
+
+  const mined = useCountUp(minedReal);
+  const miningSpeed = useCountUp(miningSpeedReal);
+  const staked = useCountUp(stakedReal);
 
   return (
     <div className="w-full grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
@@ -81,7 +83,7 @@ export default function TokenStats() {
         <p className="text-sm opacity-70 mt-1">Total Staked</p>
       </motion.div>
 
-      {/* Bonus Quest CTA */}
+      {/* Bonus Quest */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}

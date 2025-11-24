@@ -1,5 +1,7 @@
 import { db } from "../firebase";
 import { doc, setDoc } from "firebase/firestore";
+import { simulateTransactions } from "./simulateTransactions";
+
 
 export async function simulateTokenomics() {
   const rand = (min: number, max: number) =>
@@ -38,6 +40,10 @@ export async function simulateTokenomics() {
     tokenPrice,
     distribution,
   });
+
+  console.log("✔ Tokenomics updated");
+
+  await simulateTransactions();  
 
   return true;
 }
