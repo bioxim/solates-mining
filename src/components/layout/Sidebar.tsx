@@ -32,8 +32,8 @@ export default function Sidebar() {
   ];
 
   const utilitiesLinks = [
-    { name: "Mining Room", href: "/mining-room", icon: <Cpu size={18} />, soon: false },
     { name: "Staking", href: "/staking", icon: <DollarSign size={18} />, soon: false },
+    { name: "Liquid Staking", href: "/liquid-staking", icon: <Cpu size={18} />, soon: false },
     { name: "Solnake", href: "", icon: <Flame size={18} />, soon: true },
     { name: "Lending", href: "", icon: <Lock size={18} />, soon: true },
     { name: "Liquidity Pools", href: "", icon: <Layers size={18} />, soon: true },

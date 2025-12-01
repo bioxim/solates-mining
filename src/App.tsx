@@ -12,8 +12,8 @@ import Main from "./pages/General";
 import TransactionsPage from "./pages/Transactions";
 import Leaderboard from "./pages/Leaderboard";
 import Quests from "./pages/Quests";
+import Liquid from "./pages/Liquid";
 import Staking from "./pages/Staking";
-import MiningRoom from "./pages/MinigRoom";
 
 import { WalletProvider } from "./wallet/WalletProvider";
 
@@ -41,9 +41,9 @@ export default function App() {
               <Route element={<Layout />}>
                 <Route path="/dashboard" element={<Main />} />
                 <Route path="/transactions" element={<TransactionsPage />} />
-                <Route path="/mining-room" element={<MiningRoom />} />
-                <Route path="/quests" element={<Quests />} />
                 <Route path="/staking" element={<Staking />} />
+                <Route path="/quests" element={<Quests />} />
+                <Route path="/liquid-staking" element={<Liquid />} />
                 <Route path="/leaderboard" element={<Leaderboard />} />
               </Route>
 
