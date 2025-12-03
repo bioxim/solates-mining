@@ -52,7 +52,7 @@ export default function TokenStats() {
         <h2 className="text-2xl font-bold text-[var(--primary)]">
           {loading ? "..." : `${mined.toFixed(2)} OLA`}
         </h2>
-        <p className="text-sm opacity-70 mt-1">Total Mined</p>
+        <p className="text-sm opacity-70 mt-1">Total Fees</p>
       </motion.div>
 
       {/* Mining speed */}
@@ -66,7 +66,7 @@ export default function TokenStats() {
         <h2 className="text-2xl font-bold text-[var(--primary)]">
           {loading ? "..." : `${miningSpeed.toFixed(2)} OLA/day`}
         </h2>
-        <p className="text-sm opacity-70 mt-1">Mining Speed</p>
+        <p className="text-sm opacity-70 mt-1">Total Buys</p>
       </motion.div>
 
       {/* Total staked */}
