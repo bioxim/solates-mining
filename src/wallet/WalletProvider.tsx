@@ -28,7 +28,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // 1) Conectar phantom
+      // 1) Conectar Phantom
       const resp = await provider.connect();
       const phantomAddress = resp.publicKey.toString();
 
@@ -40,28 +40,26 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // 3) Buscar en Firestore el usuario y su wallet guardada
-      const ref = doc(db, "users", user.uid);
-      const snap = await getDoc(ref);
+      // 3) Buscar en Firestore la wallet REAL
+      const walletRef = doc(db, "wallets", phantomAddress);
+      const walletSnap = await getDoc(walletRef);
 
-      if (!snap.exists()) {
-        setError("User not found in database.");
+      if (!walletSnap.exists()) {
+        setError("This wallet is not linked to any account.");
         provider.disconnect();
         return;
       }
 
-      const savedWallet = snap.get("wallet");
+      const walletData = walletSnap.data();
 
-      // 4) Validar si coincide
-      if (savedWallet && savedWallet !== phantomAddress) {
-        setError(
-          `Invalid wallet. Expected ${savedWallet}, but detected ${phantomAddress}.`
-        );
+      // 4) Validar propietario
+      if (walletData.userId !== user.uid) {
+        setError("This wallet belongs to a different user.");
         provider.disconnect();
         return;
       }
 
-      // 5) Todo OK → conectar
+      // 5) Todo OK → conectar la wallet
       setAddress(phantomAddress);
 
     } catch (err) {

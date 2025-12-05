@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 
 interface StakeModalProps {
   onClose: () => void;
+  onConfirm: (amount: number) => void; // NUEVO
   userBalance: number;
   apy: number;
   tierName: string;
@@ -10,6 +11,7 @@ interface StakeModalProps {
 
 export default function StakeModal({
   onClose,
+  onConfirm,
   userBalance,
   apy,
   tierName,
@@ -17,8 +19,10 @@ export default function StakeModal({
   const [amount, setAmount] = useState("");
 
   const numericAmount = Number(amount);
-
   const estimatedYearly = numericAmount * (apy / 100);
+
+  const confirmDisabled =
+    numericAmount <= 0 || numericAmount > userBalance || Number.isNaN(numericAmount);
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
@@ -32,7 +36,8 @@ export default function StakeModal({
         </h2>
 
         <p className="text-gray-300 text-center mb-4">
-          Your balance: <span className="text-[var(--primary)]">{userBalance} OLA</span>
+          Your balance:{" "}
+          <span className="text-[var(--primary)]">{userBalance} OLA</span>
         </p>
 
         <div className="mb-6">
@@ -61,7 +66,8 @@ export default function StakeModal({
 
         <div className="flex flex-col gap-4">
           <button
-            disabled={numericAmount <= 0 || numericAmount > userBalance}
+            onClick={() => onConfirm(numericAmount)}
+            disabled={confirmDisabled}
             className="w-full py-3 rounded-xl font-semibold bg-[var(--primary)] text-black disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Confirm Stake
