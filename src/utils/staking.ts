@@ -204,8 +204,8 @@ export async function unstakeOLA(walletAddress: string, amount: number) {
 // ===============================
 // 💧 FAUCET (SOLO PARA DESARROLLO)
 // ===============================
-export async function mintDevTokens(userId: string, amount: number) {
-  const balanceRef = doc(db, "wallets", userId, "balances", "OLA");
+export async function mintDevTokens(walletAddress: string, amount: number) {
+  const balanceRef = doc(db, "wallets", walletAddress, "balances", "OLA");
   
   await runTransaction(db, async (tx) => {
     const snap = await tx.get(balanceRef);

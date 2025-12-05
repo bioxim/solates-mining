@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/pages/Staking.tsx
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
-import { db } from "../firebase"; // Asegúrate de importar db
+import { db } from "../firebase";
 
 import StakingStats from "../components/staking/StakingStats";
 import StakingTiers from "../components/staking/StakingTiers";
@@ -11,69 +10,80 @@ import StakingPosition from "../components/staking/StakingPosition";
 import StakeModal from "../components/staking/StakeModal";
 
 import { useCurrentUser } from "../hooks/useCurrentUser";
+import { useWallet } from "../wallet/useWallet";
+
 import { getRankInfo } from "../utils/getRankInfo";
-import { stakeOLA, unstakeOLA, mintDevTokens } from "../utils/staking"; // Importamos mintDevTokens
+import { stakeOLA, unstakeOLA, mintDevTokens } from "../utils/staking";
 
 export default function Staking() {
   const [modalOpen, setModalOpen] = useState(false);
+
   const { user, loading } = useCurrentUser();
-  
-  // Estado local para el balance REAL leído de Firebase
+  const { address: walletAddress, connected } = useWallet();
+
+  // Balance real leído desde Firebase
   const [realBalance, setRealBalance] = useState(0);
 
-  // Escuchar el balance real en tiempo real
+  // Escuchar la wallet del usuario (NO uid)
   useEffect(() => {
-    if (!user?.uid) return;
-    const unsub = onSnapshot(doc(db, "wallets", user.uid, "balances", "OLA"), (doc) => {
-        setRealBalance(doc.exists() ? doc.data().amount : 0);
-    });
+    if (!walletAddress) return;
+
+    const unsub = onSnapshot(
+      doc(db, "wallets", walletAddress, "balances", "OLA"),
+      (snap) => {
+        setRealBalance(snap.exists() ? snap.data().amount : 0);
+      }
+    );
+
     return () => unsub();
-  }, [user?.uid]);
+  }, [walletAddress]);
 
   if (loading) return <div className="text-center p-10 text-white/60">Loading App...</div>;
   if (!user) return <div className="text-center p-10 text-red-400">Please login.</div>;
+  if (!connected || !walletAddress)
+    return <div className="text-center p-10 text-orange-400">Please connect your wallet.</div>;
 
   const { rank, multiplier } = getRankInfo(user.xp || 0);
   const apy = 2.0 * multiplier;
 
-  // --- HANDLERS ---
-
+  // HANDLERS
   const handleConfirmStake = async (amount: number) => {
     try {
-      console.log(`🔥 Staking ${amount} OLA...`);
-      await stakeOLA(user.uid, amount, { tier: rank, multiplier, apy });
+      await stakeOLA(walletAddress, amount, { tier: rank, multiplier, apy });
       setModalOpen(false);
-      // No necesitamos alertas, la UI se actualizará sola gracias a onSnapshot en StakingPosition
     } catch (err: any) {
-      console.error("❌ Error staking:", err);
-      alert(err.message || "Error staking tokens");
+      console.error("Staking error:", err);
+      alert(err.message);
     }
   };
 
   const handleUnstake = async (amount: number) => {
-    if(!confirm("Are you sure you want to unstake all?")) return;
+    if (!confirm("Are you sure?")) return;
+
     try {
-      await unstakeOLA(user.uid, amount);
+      await unstakeOLA(walletAddress, amount);
     } catch (err: any) {
       alert(err.message);
     }
   };
 
   const handleMint = async () => {
-    await mintDevTokens(user.uid, 1000);
-    alert("✅ +1000 OLA añadidos a tu wallet DB para pruebas.");
+    await mintDevTokens(walletAddress, 1000);
+    alert("Minted 1000 OLA for testing.");
   };
 
   return (
     <div className="min-h-screen w-full p-8 bg-gradient-to-b from-[#0a0a0a] to-[#121212] text-white overflow-hidden">
-      
-      {/* --- DEV TOOLS (Eliminar en producción) --- */}
+
+      {/* Dev Tools */}
       <div className="flex justify-center mb-8">
-        <button onClick={handleMint} className="text-xs bg-white/10 px-3 py-1 rounded hover:bg-white/20">
+        <button
+          onClick={handleMint}
+          className="text-xs bg-white/10 px-3 py-1 rounded hover:bg-white/20"
+        >
           🛠 Mint 1000 OLA (Test)
         </button>
       </div>
-      {/* ------------------------------------------ */}
 
       <motion.h1
         initial={{ opacity: 0, y: -10 }}
@@ -91,15 +101,12 @@ export default function Staking() {
         rankMultiplier={multiplier}
       />
 
-      {/* Pasamos el userId directamente para evitar errores de hooks */}
       <StakingPosition
-        userId={user.uid}
         apy={apy}
         onStake={() => setModalOpen(true)}
         onUnstake={handleUnstake}
-      />
-      
-      {/* Tiers Informativos */}
+        walletAddress={walletAddress}      />
+
       <div className="mt-12 opacity-80 hover:opacity-100 transition">
         <StakingTiers userRank={rank} onStake={() => setModalOpen(true)} />
       </div>
@@ -107,7 +114,7 @@ export default function Staking() {
       {modalOpen && (
         <StakeModal
           onClose={() => setModalOpen(false)}
-          userBalance={realBalance} // <--- Pasamos el balance REAL, no el placeholder
+          userBalance={realBalance}
           apy={apy}
           tierName={rank}
           onConfirm={handleConfirmStake}
